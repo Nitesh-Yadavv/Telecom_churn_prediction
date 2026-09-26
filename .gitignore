@@ -1,0 +1,83 @@
+# ========================
+# Python
+# ========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# ========================
+# Virtual Environments
+# ========================
+venv/
+env/
+.venv/
+.env/
+
+# ========================
+# Environment Variables
+# ========================
+.env
+*.env
+
+# ========================
+# Jupyter Notebooks
+# ========================
+.ipynb_checkpoints/
+
+# ========================
+# IDE / Editor
+# ========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ========================
+# Distribution / Packaging
+# ========================
+dist/
+build/
+*.egg-info/
+*.egg
+
+# ========================
+# ML Models & Artifacts
+# ========================
+*.pkl
+*.pickle
+*.h5
+*.hdf5
+*.joblib
+*.onnx
+
+# ========================
+# Data Files (large files)
+# ========================
+*.csv
+*.xlsx
+*.xls
+*.parquet
+*.feather
+*.db
+*.sqlite3
+
+# ========================
+# Outputs / Logs
+# ========================
+*.log
+logs/
+
+# ========================
+# OS Files
+# ========================
+.DS_Store
+Thumbs.db
+
+# ========================
+# Miscellaneous
+# ========================
+*.bak
+*.tmp
+*.cache
