@@ -27,3 +27,13 @@ and a live Streamlit app querying the database directly.
 6. Download the dataset (Kaggle: `blastchar/telco-customer-churn`) into
    `data/`, then run `python db/load_data.py` to clean and load it into
    Postgres.
+
+   ## Evaluation approach
+
+Churn is imbalanced (~26% of customers), so accuracy is not used as a
+metric anywhere in this project — a model predicting "no churn" for
+everyone would score 74% accuracy while being useless. Because missing an
+actual churner costs far more than a wasted retention offer, this project
+prioritizes **recall** and uses **AUC-PR** to compare models, with F2
+(favoring recall over precision) used when a single threshold decision is
+needed.
