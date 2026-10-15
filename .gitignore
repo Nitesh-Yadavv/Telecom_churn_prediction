@@ -49,13 +49,13 @@ build/
 *.pickle
 *.h5
 *.hdf5
-*.joblib
 *.onnx
 
 # ========================
 # Data Files (large files)
 # ========================
 *.csv
+!outputs/*.csv
 *.xlsx
 *.xls
 *.parquet

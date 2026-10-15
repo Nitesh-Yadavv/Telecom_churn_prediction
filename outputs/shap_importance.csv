@@ -1,0 +1,31 @@
+,0
+tenure,0.604
+contract_Two year,0.519
+internet_service_Fiber optic,0.428
+internet_service_No,0.276
+contract_One year,0.23
+payment_method_Electronic check,0.17
+online_security_Yes,0.114
+paperless_billing,0.112
+streaming_movies_Yes,0.108
+multiple_lines_Yes,0.099
+tech_support_Yes,0.063
+streaming_tv_Yes,0.057
+phone_service,0.055
+senior_citizen,0.046
+total_charges,0.039
+monthly_charges,0.035
+dependents,0.025
+online_backup_Yes,0.015
+online_security_No internet service,0.0
+multiple_lines_No phone service,0.0
+gender_Male,0.0
+partner,0.0
+streaming_tv_No internet service,0.0
+tech_support_No internet service,0.0
+device_protection_Yes,0.0
+device_protection_No internet service,0.0
+online_backup_No internet service,0.0
+streaming_movies_No internet service,0.0
+payment_method_Credit card (automatic),0.0
+payment_method_Mailed check,0.0

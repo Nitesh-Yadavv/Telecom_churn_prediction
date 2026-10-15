@@ -1,0 +1,83 @@
+{
+  "source": "feature statistics from the training set; score statistics from the test set (out-of-sample)",
+  "n_train": 5634,
+  "train_churn_rate": 0.2653532126375577,
+  "numeric_features": {
+    "tenure": {
+      "mean": 32.29357472488463,
+      "std": 24.580732213073787,
+      "quantiles": {
+        "0.05": 1.0,
+        "0.25": 9.0,
+        "0.5": 29.0,
+        "0.75": 55.0,
+        "0.95": 72.0
+      }
+    },
+    "monthly_charges": {
+      "mean": 64.53362619808306,
+      "std": 30.00924004698462,
+      "quantiles": {
+        "0.05": 19.65,
+        "0.25": 35.5125,
+        "0.5": 70.25,
+        "0.75": 89.8,
+        "0.95": 106.8
+      }
+    },
+    "total_charges": {
+      "mean": 2273.866897408591,
+      "std": 2265.2374699731554,
+      "quantiles": {
+        "0.05": 46.3325,
+        "0.25": 389.3875,
+        "0.5": 1387.4,
+        "0.75": 3781.5125,
+        "0.95": 6927.124999999998
+      }
+    }
+  },
+  "feature_means": {
+    "senior_citizen": 0.16293929712460065,
+    "partner": 0.4838480653177139,
+    "dependents": 0.29943201987930423,
+    "phone_service": 0.901313454029109,
+    "paperless_billing": 0.5944266950656727,
+    "tenure": 32.29357472488463,
+    "monthly_charges": 64.53362619808306,
+    "total_charges": 2273.866897408591,
+    "gender_Male": 0.5090521831735889,
+    "multiple_lines_No phone service": 0.09868654597089102,
+    "multiple_lines_Yes": 0.41959531416400425,
+    "internet_service_Fiber optic": 0.43610223642172524,
+    "internet_service_No": 0.21654242101526447,
+    "online_security_No internet service": 0.21654242101526447,
+    "online_security_Yes": 0.2868299609513667,
+    "online_backup_No internet service": 0.21654242101526447,
+    "online_backup_Yes": 0.3438054668086617,
+    "device_protection_No internet service": 0.21654242101526447,
+    "device_protection_Yes": 0.340610578629748,
+    "tech_support_No internet service": 0.21654242101526447,
+    "tech_support_Yes": 0.28931487397941075,
+    "streaming_tv_No internet service": 0.21654242101526447,
+    "streaming_tv_Yes": 0.38232161874334397,
+    "streaming_movies_No internet service": 0.21654242101526447,
+    "streaming_movies_Yes": 0.3832090876819311,
+    "contract_One year": 0.21050763223287186,
+    "contract_Two year": 0.23837415690450833,
+    "payment_method_Credit card (automatic)": 0.21299254526091588,
+    "payment_method_Electronic check": 0.3365282215122471,
+    "payment_method_Mailed check": 0.229144479943202
+  },
+  "test_calibrated_score": {
+    "mean": 0.268718750497843,
+    "quantiles": {
+      "0.05": 0.008579688958562636,
+      "0.25": 0.04205322824782096,
+      "0.5": 0.18368364569591494,
+      "0.75": 0.4548506493668487,
+      "0.95": 0.7510628851538341
+    }
+  },
+  "test_flag_rate_at_cutoff": 0.3520227111426544
+}

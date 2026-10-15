@@ -1,0 +1,69 @@
+{
+  "created": "2026-10-15T16:53:32",
+  "feature_order": [
+    "senior_citizen",
+    "partner",
+    "dependents",
+    "phone_service",
+    "paperless_billing",
+    "tenure",
+    "monthly_charges",
+    "total_charges",
+    "gender_Male",
+    "multiple_lines_No phone service",
+    "multiple_lines_Yes",
+    "internet_service_Fiber optic",
+    "internet_service_No",
+    "online_security_No internet service",
+    "online_security_Yes",
+    "online_backup_No internet service",
+    "online_backup_Yes",
+    "device_protection_No internet service",
+    "device_protection_Yes",
+    "tech_support_No internet service",
+    "tech_support_Yes",
+    "streaming_tv_No internet service",
+    "streaming_tv_Yes",
+    "streaming_movies_No internet service",
+    "streaming_movies_Yes",
+    "contract_One year",
+    "contract_Two year",
+    "payment_method_Credit card (automatic)",
+    "payment_method_Electronic check",
+    "payment_method_Mailed check"
+  ],
+  "model": {
+    "description": "LightGBM (class-weighted) + sigmoid calibration (CalibratedClassifierCV, ensemble=False, 5-fold), fit on training data only",
+    "hyperparameters": {
+      "n_estimators": 348,
+      "learning_rate": 0.06102125079617202,
+      "num_leaves": 2,
+      "scale_pos_weight": 2.768561872909699
+    }
+  },
+  "business_defaults": {
+    "offer_success_rate_r": 0.5,
+    "discount_d": 0.2,
+    "months_retained_M": 12,
+    "cutoff_formula": "d / (d + r * (1 - d))",
+    "cutoff": 0.3333333333333333
+  },
+  "test_metrics_at_cutoff": {
+    "n_test": 1409,
+    "n_churners": 374,
+    "auc_pr": 0.6550365584880613,
+    "recall": 0.7245989304812834,
+    "precision": 0.5463709677419355,
+    "flagged": 496,
+    "net_saving_12m_currency_units": 60674.15999999998,
+    "net_saving_per_1000_customers": 43061.85947480481
+  },
+  "library_versions": {
+    "python": "3.11.3",
+    "scikit-learn": "1.7.0",
+    "lightgbm": "4.7.0",
+    "shap": "0.51.0",
+    "pandas": "2.3.0",
+    "numpy": "2.4.6"
+  }
+}
