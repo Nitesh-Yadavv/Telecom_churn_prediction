@@ -81,3 +81,7 @@ Thumbs.db
 *.bak
 *.tmp
 *.cache
+
+!models/*.joblib
+!reports/*.csv
+!reports/*.json
