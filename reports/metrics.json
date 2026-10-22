@@ -1,0 +1,20 @@
+{
+  "cutoff": 0.3333333333333333,
+  "n_test": 1409,
+  "n_churners": 374,
+  "brier_uncalibrated": 0.16594497931754007,
+  "brier_sigmoid": 0.1369225855599975,
+  "auc_pr": 0.6550365584880613,
+  "roc_auc": 0.8415820610194011,
+  "flagged": 496,
+  "recall": 0.7245989304812834,
+  "precision": 0.5463709677419355,
+  "actual_saving_12m": 60674.15999999998,
+  "expected_saving_12m": 67009.40083554618,
+  "assumptions": {
+    "r": 0.5,
+    "d": 0.2,
+    "M": 12
+  },
+  "selection_note": "Cutoff derived from d/(d+r(1-d)); no test outcomes used to choose it."
+}

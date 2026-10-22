@@ -57,6 +57,8 @@ build/
 *.csv
 !outputs/*.csv
 !data/split_assignment.csv
+!reports/*.csv
+
 *.xlsx
 *.xls
 *.parquet
