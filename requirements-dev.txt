@@ -1,0 +1,7 @@
+# Tests and CI only. Never installed in the deployed images.
+-r requirements-api.txt
+-r requirements-dashboard.txt
+pytest==9.1.1
+httpx==0.28.1
+ruff==0.16.10
+shap==0.51.0

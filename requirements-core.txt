@@ -1,0 +1,4 @@
+# Shared by every service. Pure-Python economics, schema and checks only.
+numpy==2.4.6
+pandas==2.3.0
+pydantic==2.14.0

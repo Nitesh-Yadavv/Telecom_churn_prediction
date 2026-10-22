@@ -1,0 +1,13 @@
+# API image: model serving. Versions of numpy, pandas, scikit-learn, lightgbm
+# and joblib match the environment the models were trained in. Do not bump them
+# without rerunning the skew test.
+-r requirements-core.txt
+scikit-learn==1.7.0
+lightgbm==4.7.0
+joblib==1.5.1
+fastapi==0.143.0
+uvicorn==0.54.0
+python-multipart==0.0.32
+SQLAlchemy==2.0.39
+psycopg2-binary==2.9.10
+python-dotenv==1.2.3

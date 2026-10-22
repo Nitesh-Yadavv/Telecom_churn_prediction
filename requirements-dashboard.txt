@@ -1,0 +1,8 @@
+# Dashboard image: no LightGBM, no scikit-learn, no shap.
+-r requirements-core.txt
+streamlit==1.46.1
+plotly==7.1.0
+requests==2.32.3
+SQLAlchemy==2.0.39
+psycopg2-binary==2.9.10
+python-dotenv==1.2.3
