@@ -1,0 +1,13 @@
+{
+  "n_customers": 7043,
+  "total_monthly_revenue": 456116.6,
+  "revenue_lost_monthly": 139130.85,
+  "revenue_lost_share": 0.305,
+  "n_current_customers": 5174,
+  "current_monthly_revenue": 316985.75,
+  "expected_revenue_at_risk_monthly": 67610.07,
+  "definitions": {
+    "revenue_lost": "Sum of monthly charges of customers marked churned in the data (already left).",
+    "expected_at_risk": "Sum of calibrated churn probability x monthly charge over customers still active. Uses out-of-fold scores for training rows. Assumes the churn process continues."
+  }
+}
