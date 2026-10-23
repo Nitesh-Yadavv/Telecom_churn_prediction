@@ -79,5 +79,136 @@
       "0.95": 0.7510628851538341
     }
   },
-  "test_flag_rate_at_cutoff": 0.3520227111426544
+  "test_flag_rate_at_cutoff": 0.3520227111426544,
+  "data_health": {
+    "format": "Kaggle Telco column names (the upload template format)",
+    "learned_from": "training rows only (5,634)",
+    "required_columns": [
+      "gender",
+      "SeniorCitizen",
+      "Partner",
+      "Dependents",
+      "PhoneService",
+      "MultipleLines",
+      "InternetService",
+      "OnlineSecurity",
+      "OnlineBackup",
+      "DeviceProtection",
+      "TechSupport",
+      "StreamingTV",
+      "StreamingMovies",
+      "Contract",
+      "PaperlessBilling",
+      "PaymentMethod",
+      "tenure",
+      "MonthlyCharges",
+      "TotalCharges"
+    ],
+    "categorical": {
+      "gender": [
+        "Female",
+        "Male"
+      ],
+      "SeniorCitizen": [
+        "0",
+        "1"
+      ],
+      "Partner": [
+        "No",
+        "Yes"
+      ],
+      "Dependents": [
+        "No",
+        "Yes"
+      ],
+      "PhoneService": [
+        "No",
+        "Yes"
+      ],
+      "MultipleLines": [
+        "No",
+        "No phone service",
+        "Yes"
+      ],
+      "InternetService": [
+        "DSL",
+        "Fiber optic",
+        "No"
+      ],
+      "OnlineSecurity": [
+        "No",
+        "No internet service",
+        "Yes"
+      ],
+      "OnlineBackup": [
+        "No",
+        "No internet service",
+        "Yes"
+      ],
+      "DeviceProtection": [
+        "No",
+        "No internet service",
+        "Yes"
+      ],
+      "TechSupport": [
+        "No",
+        "No internet service",
+        "Yes"
+      ],
+      "StreamingTV": [
+        "No",
+        "No internet service",
+        "Yes"
+      ],
+      "StreamingMovies": [
+        "No",
+        "No internet service",
+        "Yes"
+      ],
+      "Contract": [
+        "Month-to-month",
+        "One year",
+        "Two year"
+      ],
+      "PaperlessBilling": [
+        "No",
+        "Yes"
+      ],
+      "PaymentMethod": [
+        "Bank transfer (automatic)",
+        "Credit card (automatic)",
+        "Electronic check",
+        "Mailed check"
+      ]
+    },
+    "numeric": {
+      "tenure": {
+        "min": 0.0,
+        "max": 72.0,
+        "p01": 1.0,
+        "p99": 72.0,
+        "mean": 32.29357472488463,
+        "missing_share": 0.0
+      },
+      "MonthlyCharges": {
+        "min": 18.4,
+        "max": 118.65,
+        "p01": 19.2,
+        "p99": 114.6,
+        "mean": 64.53362619808307,
+        "missing_share": 0.0
+      },
+      "TotalCharges": {
+        "min": 18.8,
+        "max": 8684.8,
+        "p01": 19.9,
+        "p99": 8030.5375,
+        "mean": 2277.1002666192676,
+        "missing_share": 0.0014199503017394391
+      }
+    },
+    "notes": {
+      "TotalCharges": "Blank for brand-new customers (tenure 0). The cleaning step fills these with 0, so a blank is acceptable only when tenure is 0."
+    }
+  }
 }
