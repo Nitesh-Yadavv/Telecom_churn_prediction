@@ -9,7 +9,7 @@ Settings are READ from models/model_config.json, which notebook 04 wrote. Nothin
 import json
 import os
 from dataclasses import dataclass
-from functools import lru_cache
+from functools import cache
 from pathlib import Path
 
 # Must match the "model_version" column written to reports/scores.csv (a test checks this).
@@ -35,7 +35,7 @@ def data_dir() -> Path:
     return home() / "data"
 
 
-@lru_cache(maxsize=None)
+@cache
 def _read_json(path: str) -> dict:
     with open(path, encoding="utf-8") as f:
         return json.load(f)
