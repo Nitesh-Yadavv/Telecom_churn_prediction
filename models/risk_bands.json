@@ -1,0 +1,85 @@
+{
+  "labels": [
+    "Low",
+    "Medium",
+    "High",
+    "Very high"
+  ],
+  "edges": {
+    "low_medium": 0.11,
+    "cutoff": 0.3333333333333333,
+    "high_very_high": 0.58
+  },
+  "quantiles_used": {
+    "low_medium": 0.4,
+    "high_very_high": 0.85
+  },
+  "assumptions": {
+    "r": 0.5,
+    "d": 0.2,
+    "months": 12
+  },
+  "note": "Cutoff edge derived from the business assumptions. Other edges are quantiles of test-set scores (no outcomes used). 'oof' = out-of-fold scores of training customers.",
+  "observed": {
+    "test": [
+      {
+        "band": "Low",
+        "customers": 556,
+        "share": 0.3946,
+        "observed_churn_rate": 0.045,
+        "mean_predicted": 0.0375
+      },
+      {
+        "band": "Medium",
+        "customers": 357,
+        "share": 0.2534,
+        "observed_churn_rate": 0.2185,
+        "mean_predicted": 0.2129
+      },
+      {
+        "band": "High",
+        "customers": 284,
+        "share": 0.2016,
+        "observed_churn_rate": 0.4366,
+        "mean_predicted": 0.454
+      },
+      {
+        "band": "Very high",
+        "customers": 212,
+        "share": 0.1505,
+        "observed_churn_rate": 0.6934,
+        "mean_predicted": 0.7209
+      }
+    ],
+    "oof": [
+      {
+        "band": "Low",
+        "customers": 2251,
+        "share": 0.3995,
+        "observed_churn_rate": 0.0391,
+        "mean_predicted": 0.0401
+      },
+      {
+        "band": "Medium",
+        "customers": 1450,
+        "share": 0.2574,
+        "observed_churn_rate": 0.2207,
+        "mean_predicted": 0.217
+      },
+      {
+        "band": "High",
+        "customers": 1115,
+        "share": 0.1979,
+        "observed_churn_rate": 0.4484,
+        "mean_predicted": 0.4532
+      },
+      {
+        "band": "Very high",
+        "customers": 818,
+        "share": 0.1452,
+        "observed_churn_rate": 0.7176,
+        "mean_predicted": 0.7149
+      }
+    ]
+  }
+}

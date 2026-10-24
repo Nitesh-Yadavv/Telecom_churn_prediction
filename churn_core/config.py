@@ -1,6 +1,4 @@
 """
-churn_core/config.py
-
 The single place where paths, the model version and the saved business settings live, so no other
 module hard-codes a number. Pure and light: standard library only (safe for the dashboard image).
 
@@ -49,6 +47,11 @@ def model_config() -> dict:
 def reference_stats() -> dict:
     """Contents of models/reference_stats.json (distributions and data-health limits)."""
     return _read_json(str(models_dir() / "reference_stats.json"))
+
+
+def risk_bands() -> dict:
+    """Contents of models/risk_bands.json (band edges and the observed churn rate per band)."""
+    return _read_json(str(models_dir() / "risk_bands.json"))
 
 
 @dataclass(frozen=True)

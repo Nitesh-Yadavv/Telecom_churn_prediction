@@ -1,0 +1,9 @@
+sample,band,customers,share,observed_churn_rate,mean_predicted
+test,Low,556,0.3946,0.045,0.0375
+test,Medium,357,0.2534,0.2185,0.2129
+test,High,284,0.2016,0.4366,0.454
+test,Very high,212,0.1505,0.6934,0.7209
+oof,Low,2251,0.3995,0.0391,0.0401
+oof,Medium,1450,0.2574,0.2207,0.217
+oof,High,1115,0.1979,0.4484,0.4532
+oof,Very high,818,0.1452,0.7176,0.7149
