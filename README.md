@@ -1,4 +1,5 @@
 # Telecom Customer Churn: From Prediction to a Profitable Retention Decision
+![CI](https://github.com/Nitesh-Yadavv/Telecom_churn_prediction/actions/workflows/ci.yml/badge.svg)
 
 Predicting who will churn is only half the problem. The business question is: **if we offer a discount to the customers the model flags, do we make or lose money?** This project builds a calibrated churn model, derives a cost-based decision cutoff, and tests the resulting campaign against simple alternatives using real held-out outcomes.
 
