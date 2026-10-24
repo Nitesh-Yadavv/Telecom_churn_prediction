@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "churn-core"
+version = "0.1.0"
+description = "Shared churn logic: settings, economics, schema, data checks and scoring"
+requires-python = ">=3.11"
+# Dependencies are listed in requirements-*.txt (one file per image), not here.
+
+[tool.setuptools]
+packages = ["churn_core"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
