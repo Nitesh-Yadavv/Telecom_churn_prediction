@@ -67,6 +67,12 @@ def test_out_of_range_is_a_warning_and_the_row_is_still_scored():
     assert "outside the training range" in find(r, "warning", "MonthlyCharges")[0].message
 
 
+def test_a_new_customer_with_zero_total_charges_is_not_unusual():
+    r = check_upload(frame({"tenure": 0, "TotalCharges": 0}, {"tenure": 5, "TotalCharges": 0}))
+    assert r.valid_mask.all()
+    assert not find(r, "warning", "TotalCharges") or find(r, "warning", "TotalCharges")[0].row == 3
+
+
 def test_contradicting_services_duplicates_and_extra_columns_warn():
     f = frame({"InternetService": "No"}, {"PhoneService": "No"}, {})
     f.loc[2, "customerID"] = f.loc[0, "customerID"]              # duplicate ID
@@ -92,6 +98,10 @@ def test_empty_file_is_an_error():
 def test_single_customer_range_warnings():
     assert customer_warnings({"tenure": 12, "monthly_charges": 55.0, "total_charges": 660.0}) == []
     assert customer_warnings({"tenure": 500, "monthly_charges": 55.0, "total_charges": 660.0})
+    # brand-new customer: nothing paid yet is normal, but a zero bill still is not
+    assert customer_warnings({"tenure": 0, "monthly_charges": 55.0, "total_charges": 0.0}) == []
+    assert any("monthly_charges" in w
+               for w in customer_warnings({"tenure": 0, "monthly_charges": 0.0, "total_charges": 0.0}))
 
 
 # ---- runs only on your machine (the raw CSV is not in the repo) ----

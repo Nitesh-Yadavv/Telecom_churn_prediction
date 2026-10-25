@@ -1,4 +1,5 @@
 """
+churn_core/checks.py
 
 Data-health checks for uploaded files, run BEFORE anything reaches the model.
 
@@ -153,6 +154,8 @@ def check_upload(df: pd.DataFrame) -> HealthReport:
         c.rows("error", col, negative, lambda i, col=col: f"{col} is negative ({num[col].iloc[i]})")
         lim = stats["numeric"][col]
         outside = ((num[col] < lim["min"]) | (num[col] > lim["max"])).to_numpy() & ~negative
+        if col == "TotalCharges":                     # tenure 0 -> TotalCharges 0 is normal, not unusual
+            outside &= ~((num[col] == 0).to_numpy() & tenure_zero)
         c.rows("warning", col, outside,
                lambda i, col=col, lim=lim: f"{col} = {num[col].iloc[i]} is outside the training range "
                                            f"{lim['min']:g} to {lim['max']:g}; treat the score with care")
@@ -187,6 +190,8 @@ def customer_warnings(values: dict) -> list:
     for clean_col in ["tenure", "monthly_charges", "total_charges"]:
         lim = stats[CLEAN_TO_RAW[clean_col]]
         v = values[clean_col]
+        if clean_col == "total_charges" and v == 0 and values["tenure"] == 0:
+            continue                                  # a brand-new customer has paid nothing yet
         if v < lim["min"] or v > lim["max"]:
             out.append(f"{clean_col} = {v:g} is outside the training range "
                        f"{lim['min']:g} to {lim['max']:g}; treat the score with care")

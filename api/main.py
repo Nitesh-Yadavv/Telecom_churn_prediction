@@ -1,4 +1,5 @@
 """
+
 The prediction service. It holds NO model logic of its own: every number comes from churn_core.
 Run locally from the repo root:  uvicorn api.main:app --reload
 
@@ -27,7 +28,7 @@ load_dotenv()
 api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 
-# request and response shapes
+# ---------------- request and response shapes ----------------
 class AssumptionsIn(BaseModel):
     """Business assumptions. Leave a field out to use the saved default. They are assumptions."""
     model_config = ConfigDict(extra="forbid")
@@ -42,8 +43,18 @@ class AssumptionsOut(BaseModel):
     months: int
 
 
+EXAMPLE_CUSTOMER = {
+    "gender": "Female", "senior_citizen": False, "partner": False, "dependents": False, "tenure": 5,
+    "phone_service": True, "multiple_lines": "No", "internet_service": "Fiber optic",
+    "online_security": "No", "online_backup": "No", "device_protection": "No", "tech_support": "No",
+    "streaming_tv": "Yes", "streaming_movies": "Yes", "contract": "Month-to-month",
+    "paperless_billing": True, "payment_method": "Electronic check",
+    "monthly_charges": 89.9, "total_charges": 420.5,
+}
+
+
 class PredictRequest(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", json_schema_extra={"example": {"customer": EXAMPLE_CUSTOMER}})
     customer: Customer
     assumptions: AssumptionsIn = AssumptionsIn()
 

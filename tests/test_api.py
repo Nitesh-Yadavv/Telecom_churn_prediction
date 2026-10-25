@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 from fastapi.testclient import TestClient
 
-from api.main import create_app
+from api.main import EXAMPLE_CUSTOMER, create_app
 from churn_core import config
 
 KEY = "test-key-123"
@@ -89,3 +89,8 @@ def test_unusual_values_come_back_as_warnings_not_errors(client):
 def test_every_response_carries_a_request_id(client):
     assert client.get("/health").headers["X-Request-ID"]
     assert client.get("/health", headers={"X-Request-ID": "abc"}).headers["X-Request-ID"] == "abc"
+
+
+def test_the_example_shown_in_the_docs_is_a_valid_request(client):
+    r = client.post("/predict", headers=HEADERS, json={"customer": EXAMPLE_CUSTOMER})
+    assert r.status_code == 200 and r.json()["warnings"] == []
