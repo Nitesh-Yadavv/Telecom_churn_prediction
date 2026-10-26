@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 import streamlit as st
 from api_client import ApiError, explain, model_info, predict
 
-from churn_core.economics import cutoff_from
+from churn_core.economics import cutoff_from, ev_per_customer
 
 CONTRACTS = ["Month-to-month", "One year", "Two year"]
 PAYMENTS = ["Electronic check", "Mailed check", "Bank transfer (automatic)", "Credit card (automatic)"]
@@ -98,7 +98,7 @@ if st.button("Score this customer", type="primary"):
             st.session_state["result"] = {
                 "prediction": predict(customer, {"r": r, "d": d, "months": months}),
                 "explanation": explain(customer),
-                "months": months,
+                "customer": customer,
             }
     except ApiError as exc:
         st.session_state.pop("result", None)
@@ -107,19 +107,27 @@ if st.button("Score this customer", type="primary"):
 result = st.session_state.get("result")
 if result:
     p, e = result["prediction"], result["explanation"]
+    prob = p["probability"]
+    # The probability does not depend on the business assumptions, so the decision is recomputed here
+    # (with the shared economics code) whenever a slider moves. It can never disagree with the sidebar.
+    cutoff_now = cutoff_from(r, d)
+    gain_now = float(ev_per_customer([prob], [result["customer"]["monthly_charges"]], r, d, months)[0])
+
     st.divider()
+    if result["customer"] != customer:
+        st.warning("The customer details changed since this score. Press 'Score this customer' to refresh "
+                   "the probability and the reasons.")
     c1, c2, c3 = st.columns(3)
-    c1.metric("Chance of leaving", f"{p['probability']:.1%}")
+    c1.metric("Chance of leaving", f"{prob:.1%}")
     c2.metric("Risk band", p["band"], help=p["band_description"])
-    c3.metric(f"Expected gain of an offer, {result['months']} months", f"{p['expected_gain']:,.0f}",
+    c3.metric(f"Expected gain of an offer, {months} months", f"{gain_now:,.0f}",
               help="In the same currency units as the bill. Negative means the offer is expected to lose money.")
 
-    if p["flag"]:
-        st.success(f"Worth an offer: their {p['probability']:.1%} chance of leaving is above the "
-                   f"{p['cutoff']:.1%} break-even.")
+    if prob >= cutoff_now:
+        st.success(f"Worth an offer: their {prob:.1%} chance of leaving is above the {cutoff_now:.1%} break-even.")
     else:
-        st.info(f"Not worth an offer: their {p['probability']:.1%} chance of leaving is below the "
-                f"{p['cutoff']:.1%} break-even, so an offer would cost more than it saves on average.")
+        st.info(f"Not worth an offer: their {prob:.1%} chance of leaving is below the {cutoff_now:.1%} "
+                f"break-even, so an offer would cost more than it saves on average.")
     for warning in p["warnings"]:
         st.warning(warning)
 

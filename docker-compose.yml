@@ -1,0 +1,30 @@
+# Runs the API and the dashboard together on your laptop:  docker compose up --build
+# Needs API_KEY in .env (the same file the API already uses). A database container is added later.
+services:
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    environment:
+      API_KEY: ${API_KEY:?Set API_KEY in .env}
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dashboard
+    environment:
+      API_URL: http://api:8080          # services reach each other by name
+      API_KEY: ${API_KEY:?Set API_KEY in .env}
+    ports:
+      - "8501:8080"                     # open http://localhost:8501
+    depends_on:
+      api:
+        condition: service_healthy

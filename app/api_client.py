@@ -1,9 +1,11 @@
 """
+app/api_client.py
 
 The dashboard's only way to reach the model: HTTP calls to the prediction API.
 The dashboard holds no model code. The API key is read from the environment on the server side
 and is never sent to the browser.
 """
+import logging
 import os
 import time
 
@@ -11,6 +13,8 @@ import requests
 from dotenv import load_dotenv
 
 load_dotenv()
+
+logger = logging.getLogger("api_client")
 
 API_URL = os.environ.get("API_URL", "http://localhost:8000").rstrip("/")
 API_KEY = os.environ.get("API_KEY", "")
@@ -33,6 +37,8 @@ def _call(method: str, path: str, **kwargs) -> dict:
             break
         except requests.exceptions.RequestException as exc:
             last_error = exc
+            # Written to the container log (never shown to the visitor, never includes the key)
+            logger.warning("API call failed: %s %s%s -> %r", method, API_URL, path, exc)
             if attempt + 1 < ATTEMPTS:
                 time.sleep(2)
     else:

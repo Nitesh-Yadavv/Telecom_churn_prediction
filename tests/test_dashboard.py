@@ -80,3 +80,21 @@ def test_the_page_stops_cleanly_if_the_service_is_down():
     with patch.object(api_client, "model_info", side_effect=api_client.ApiError("Service unavailable")):
         at = AppTest.from_file("app/Home.py", default_timeout=30).run()
     assert not at.exception and any("Service unavailable" in e.value for e in at.error)
+
+
+def test_moving_a_slider_after_scoring_updates_the_decision_without_calling_the_api_again(app):
+    app.run()
+    app.button[0].click().run()
+    assert any("Worth an offer" in s.value for s in app.success)
+    app.sidebar.slider[1].set_value(0.5).run()                 # discount 50%: break-even rises to 66.7%
+    assert any("Not worth an offer" in i.value and "66.7%" in i.value for i in app.info)
+    assert app.sidebar.metric[0].value == "66.7%"
+    assert app.predict_mock.call_count == 1
+
+
+def test_changing_the_customer_after_scoring_warns_that_the_result_is_out_of_date(app):
+    app.run()
+    app.button[0].click().run()
+    assert not any("details changed" in w.value for w in app.warning)
+    app.number_input(key="tenure").set_value(30).run()
+    assert any("details changed" in w.value for w in app.warning)
