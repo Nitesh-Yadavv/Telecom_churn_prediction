@@ -1,0 +1,21 @@
+# Keep secrets, data and notebooks out of every image
+.git
+.gitignore
+.github
+.venv
+.env
+*.env
+__pycache__
+*.pyc
+.pytest_cache
+.ruff_cache
+.ipynb_checkpoints
+notebooks
+data
+outputs
+reports
+tests
+scripts
+db
+sql
+views

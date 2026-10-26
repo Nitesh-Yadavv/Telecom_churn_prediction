@@ -1,0 +1,33 @@
+# API image: FastAPI + churn_core + the saved models. Build from the repo root:
+#   docker build -f docker/Dockerfile.api -t churn-api .
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PYTHONPATH=/app \
+    CHURN_HOME=/app
+
+WORKDIR /app
+
+# LightGBM needs the OpenMP runtime, which the slim image does not include
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Dependencies first: this layer is cached until a requirements file changes
+COPY requirements-core.txt requirements-api.txt ./
+RUN pip install -r requirements-api.txt
+
+# Then the code and the saved models (changes most often, so it comes last)
+COPY churn_core ./churn_core
+COPY api ./api
+COPY models ./models
+
+# Do not run as root
+RUN useradd --create-home appuser
+USER appuser
+
+# Cloud Run sets PORT (8080); locally the default is also 8080
+EXPOSE 8080
+CMD ["sh", "-c", "uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8080}"]
