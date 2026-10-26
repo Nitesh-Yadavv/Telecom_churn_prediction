@@ -14,7 +14,7 @@ packages = ["churn_core"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["."]
+pythonpath = [".", "app"]
 
 [tool.ruff]
 line-length = 100
