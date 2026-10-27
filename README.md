@@ -1,6 +1,16 @@
 # Telecom Customer Churn: From Prediction to a Profitable Retention Decision
 ![CI](https://github.com/Nitesh-Yadavv/Telecom_churn_prediction/actions/workflows/ci.yml/badge.svg)
 
+## Live demo
+
+**[Open the dashboard](https://churn-dashboard-303519645143.asia-south1.run.app)**: describe a customer, see their chance of leaving, and whether a retention offer pays for itself under adjustable assumptions.
+
+> The demo runs on Google Cloud Run and scales to zero when idle, so the **first load can take 10 to 25 seconds**. After that it is fast.
+
+![Dashboard](docs/Screenshot%202026-10-28%20010646.png)
+
+**How it is deployed:** a FastAPI prediction service and a Streamlit dashboard, each in its own Docker container on Cloud Run (Mumbai). The API requires a key kept in Secret Manager. Each service is capped at one instance and scales to zero. See [docs/DEPLOY.md](docs/DEPLOY.md).
+
 Predicting who will churn is only half the problem. The business question is: **if we offer a discount to the customers the model flags, do we make or lose money?** This project builds a calibrated churn model, derives a cost-based decision cutoff, and tests the resulting campaign against simple alternatives using real held-out outcomes.
 
 > **Status:** analysis and model complete. A live demo (FastAPI service + Streamlit dashboard on Google Cloud Run, Neon Postgres backend) is in progress. See the [roadmap](#roadmap).
@@ -84,11 +94,11 @@ data/        raw CSV (not tracked) and the frozen train/test split
 
 - [x] SQL analytics, EDA, feature engineering, model selection, calibration, cost-based cutoff, strategy comparison
 - [x] Frozen train/test split, exported reports, out-of-fold scores for every customer
-- [ ] `churn_core` package with tests (prediction, economics, data-health checks)
-- [ ] FastAPI prediction service
-- [ ] Streamlit dashboard: single-customer predictor, retention simulator, model performance, business overview, risk explorer
-- [ ] Docker, deployment on Google Cloud Run, CI with GitHub Actions
-- [ ] Model card
+- [x] `churn_core` package with tests (prediction, economics, data-health checks)
+- [x] FastAPI prediction service
+- [x] Streamlit dashboard: single-customer predictor, retention simulator, model performance, business overview, risk explorer
+- [x] Docker, deployment on Google Cloud Run, CI with GitHub Actions
+- [x] Model card
 
 ## Author
 
