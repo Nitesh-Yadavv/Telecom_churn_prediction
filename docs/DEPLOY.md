@@ -8,6 +8,8 @@ What runs where:
 | Dashboard | Cloud Run service `churn-dashboard` | Streamlit. Calls the API with the key. |
 | Images | Artifact Registry repo `churn` (asia-south1) | `api:vN` and `dashboard:vN` |
 | API key | Secret Manager secret `churn-api-key` | Read by both services' own service accounts |
+| Log DB login | Secret Manager secret `churn-log-url` | Neon connection string for the `api_writer` user. Read by `churn-api-sa` only |
+| Database | Neon project (Singapore), database `neondb` | Customers, scores and the prediction log. Free plan: cannot bill, it pauses at its limits |
 | Identities | `churn-api-sa`, `churn-dashboard-sa` | Each can read that one secret and nothing else |
 
 Commands are for Windows `cmd`. Set these in each new terminal window:
@@ -46,6 +48,29 @@ docker push %REPO%/dashboard:v1
 gcloud run deploy churn-dashboard --image %REPO%/dashboard:v1 --region %REGION% --service-account churn-dashboard-sa@%PROJECT%.iam.gserviceaccount.com --set-env-vars API_URL=%URL% --set-secrets API_KEY=churn-api-key:latest --memory 1Gi --cpu 1 --cpu-boost --max 1 --concurrency 10 --timeout 300 --port 8080 --allow-unauthenticated
 ```
 
+## Database (Neon) and the prediction log
+
+One-time setup (already done), in this order:
+1. `sql/schema.sql` in the Neon SQL Editor (fresh database).
+2. `python db/load_data.py --target neon` (asks for `yes`, runs ten checks, rolls back if any fails).
+3. `sql/roles_neon.sql` with two generated passwords: `dashboard_ro` (read-only) and `api_writer`
+   (the prediction log only). Prove the permissions with `python scripts/check_db_roles.py`.
+4. The writer connection string goes to Secret Manager and only to the API:
+   ```
+   .venv\Scripts\python -c "from dotenv import load_dotenv; import os, sys; load_dotenv(); sys.stdout.write(os.environ['DATABASE_URL_WRITER'])" | gcloud secrets create churn-log-url --data-file=-
+   gcloud secrets add-iam-policy-binding churn-log-url --member="serviceAccount:churn-api-sa@%PROJECT%.iam.gserviceaccount.com" --role="roles/secretmanager.secretAccessor"
+   gcloud run deploy churn-api --image %REPO%/api:v2 --region %REGION% --update-secrets PREDICTION_LOG_URL=churn-log-url:latest
+   ```
+
+How the log behaves: single predictions only, no names or IDs, at most 30 writes a minute, the newest
+5,000 rows kept, every failure swallowed, a one-minute pause after a failure. It is off unless
+`PREDICTION_LOG_URL` is set, so never put that variable in `.env` for everyday local work.
+Check it is on: `/model-info` shows `"prediction_log":{"enabled":true}`. Neon sleeps after five idle
+minutes, so the first prediction after a pause may not be logged. That is expected.
+
+Reload data into Neon after a retrain: regenerate `reports/scores.csv`, then rerun the loader with
+`--target neon`. It upserts, so it is safe to repeat.
+
 ## Ship a new version
 
 1. Run `ruff check` and `pytest`, and check the change with `docker compose up --build`.
@@ -54,7 +79,7 @@ gcloud run deploy churn-dashboard --image %REPO%/dashboard:v1 --region %REGION% 
    docker build -f docker/Dockerfile.api -t %REPO%/api:v2 .
    docker push %REPO%/api:v2
    ```
-3. Deploy it. The other settings (memory, limits, secrets) carry over from the previous revision:
+3. Deploy it. The other settings (memory, limits, secrets, `--update-secrets` additions) carry over from the previous revision:
    ```
    gcloud run deploy churn-api --image %REPO%/api:v2 --region %REGION%
    ```
