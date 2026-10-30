@@ -18,7 +18,7 @@ ADD_ONS = [("online_security", "Online security"), ("online_backup", "Online bac
            ("streaming_tv", "Streaming TV"), ("streaming_movies", "Streaming movies")]
 RAISES, LOWERS = "#D85A30", "#1D9E75"
 
-st.set_page_config(page_title="Churn decision demo", layout="wide")
+st.set_page_config(page_title="Churn decision demo", page_icon="📞", layout="wide")
 
 
 @st.cache_data(ttl=600, show_spinner=False)
@@ -150,5 +150,6 @@ if result:
     st.caption(e["note"])
 
 st.divider()
-st.caption("Demo built on the public IBM Telco customer churn dataset. The probability is calibrated; the "
+st.caption("Demo built on the public IBM Telco customer churn dataset. Please do not enter real customer data: "
+           "predictions made here are logged anonymously (no names or IDs) to monitor the model. The probability is calibrated; the "
            "money figures depend entirely on the sidebar assumptions. Retention ideas are untested hypotheses.")

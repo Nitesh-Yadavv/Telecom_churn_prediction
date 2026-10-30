@@ -1,5 +1,4 @@
 """
-api/main.py
 
 The prediction service. It holds NO model logic of its own: every number comes from churn_core.
 Run locally from the repo root:  uvicorn api.main:app --reload
@@ -11,6 +10,7 @@ start without one. Uploaded files are processed in memory and never stored.
 import io
 import os
 import secrets
+import time
 import uuid
 from contextlib import asynccontextmanager
 from dataclasses import asdict
@@ -25,6 +25,7 @@ from fastapi.responses import JSONResponse
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, ConfigDict, Field
 
+from api.prediction_log import PredictionLog
 from churn_core import bands, checks, config, economics, model
 from churn_core.explain import explain
 from churn_core.predict import predict, predict_customers
@@ -190,9 +191,11 @@ async def lifespan(app: FastAPI):
     if not key:
         raise RuntimeError("API_KEY is not set. Put it in .env (local) or Secret Manager (cloud).")
     app.state.api_key = key
+    app.state.prediction_log = PredictionLog.from_env()      # off unless PREDICTION_LOG_URL is set
     load_bundle()                         # load the encoder and both models once, at startup,
     model.load_models()                   # not on the first request
     yield
+    app.state.prediction_log.close()
 
 
 def create_app() -> FastAPI:
@@ -215,7 +218,7 @@ def create_app() -> FastAPI:
         return {"status": "ok", "model_version": config.MODEL_VERSION}
 
     @app.get("/model-info", dependencies=[Depends(require_key)])
-    def model_info():
+    def model_info(request: Request):
         a = config.default_assumptions()
         cfg = config.model_config()
         edges = bands.default_edges()
@@ -228,19 +231,26 @@ def create_app() -> FastAPI:
             "test_metrics_at_cutoff": cfg.get("test_metrics_at_cutoff"),
             "library_versions": cfg.get("library_versions"),
             "upload_limits": {"max_bytes": MAX_UPLOAD_BYTES, "max_rows": MAX_ROWS},
+            "prediction_log": {"enabled": request.app.state.prediction_log.enabled},
         }
 
     @app.post("/predict", response_model=PredictResponse, dependencies=[Depends(require_key)])
-    def predict_one(req: PredictRequest):
+    def predict_one(req: PredictRequest, request: Request):
+        started = time.perf_counter()
         a = resolve_assumptions(req.assumptions)
         out = predict_customers([req.customer], r=a.r, d=a.d, months=a.months).iloc[0]
-        return PredictResponse(
+        response = PredictResponse(
             probability=float(out.probability), band=str(out.band),
             band_description=bands.DESCRIPTIONS[str(out.band)], flag=bool(out.flag),
             expected_gain=float(out.expected_gain), cutoff=economics.cutoff_from(a.r, a.d),
             assumptions=AssumptionsOut(r=a.r, d=a.d, months=a.months),
             warnings=checks.customer_warnings(req.customer.model_dump()),
             model_version=str(out.model_version))
+        request.app.state.prediction_log.record(
+            inputs={"customer": req.customer.model_dump(), "assumptions": response.assumptions.model_dump()},
+            probability=response.probability, band=response.band, flag=response.flag,
+            model_version=response.model_version, latency_ms=round((time.perf_counter() - started) * 1000))
+        return response
 
     @app.post("/explain", response_model=ExplainResponse, dependencies=[Depends(require_key)])
     def explain_one(req: ExplainRequest):
