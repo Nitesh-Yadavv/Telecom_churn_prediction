@@ -1,10 +1,13 @@
+from pathlib import Path
 from unittest.mock import patch
 
 import api_client
 import pytest
 from streamlit.testing.v1 import AppTest
 
-INFO = {"model_version": "test-model", "cutoff": 1 / 3, "assumptions": {"r": 0.5, "d": 0.2, "months": 12}}
+APP = Path(__file__).resolve().parents[1] / "app"   # absolute: AppTest resolves relative paths against this file
+PREDICT, ENTRY = str(APP / "views" / "predict.py"), str(APP / "streamlit_app.py")
+
 PREDICTION = {"probability": 0.54, "band": "High", "band_description": "Likely to leave", "flag": True,
               "expected_gain": 120.0, "cutoff": 1 / 3, "assumptions": {"r": 0.5, "d": 0.2, "months": 12},
               "warnings": ["tenure = 500 is outside the training range"], "model_version": "test-model"}
@@ -21,21 +24,19 @@ EXPLANATION = {
 
 @pytest.fixture()
 def app():
-    from streamlit import cache_data
-    cache_data.clear()
-    with patch.object(api_client, "model_info", return_value=INFO), \
-         patch.object(api_client, "predict", return_value=PREDICTION) as predict, \
+    """The Predict page on its own, with the sidebar assumptions the entry point would have set."""
+    with patch.object(api_client, "predict", return_value=PREDICTION) as predict, \
          patch.object(api_client, "explain", return_value=EXPLANATION):
-        at = AppTest.from_file("app/Home.py", default_timeout=30)
+        at = AppTest.from_file(PREDICT, default_timeout=30)
+        at.session_state["r"], at.session_state["d"], at.session_state["months"] = 0.5, 0.2, 12
         at.predict_mock = predict
         yield at
 
 
-def test_the_page_loads_with_the_saved_assumptions(app):
+def test_the_predict_page_loads(app):
     app.run()
     assert not app.exception
-    assert [s.value for s in app.sidebar.slider] == [0.5, 0.2, 12]
-    assert app.sidebar.metric[0].value == "33.3%"                     # the derived break-even
+    assert app.title[0].value == "Predict one customer"
 
 
 def test_scoring_shows_the_result_the_reasons_and_the_warning(app):
@@ -74,21 +75,13 @@ def test_an_api_failure_shows_a_message_not_a_crash(app):
     assert not app.exception and any("Could not reach" in e.value for e in app.error)
 
 
-def test_the_page_stops_cleanly_if_the_service_is_down():
-    from streamlit import cache_data
-    cache_data.clear()
-    with patch.object(api_client, "model_info", side_effect=api_client.ApiError("Service unavailable")):
-        at = AppTest.from_file("app/Home.py", default_timeout=30).run()
-    assert not at.exception and any("Service unavailable" in e.value for e in at.error)
-
-
-def test_moving_a_slider_after_scoring_updates_the_decision_without_calling_the_api_again(app):
+def test_changing_the_assumptions_after_scoring_updates_the_decision_without_calling_the_api_again(app):
     app.run()
     app.button[0].click().run()
     assert any("Worth an offer" in s.value for s in app.success)
-    app.sidebar.slider[1].set_value(0.5).run()                 # discount 50%: break-even rises to 66.7%
+    app.session_state["d"] = 0.5                              # discount 50%: break-even rises to 66.7%
+    app.run()
     assert any("Not worth an offer" in i.value and "66.7%" in i.value for i in app.info)
-    assert app.sidebar.metric[0].value == "66.7%"
     assert app.predict_mock.call_count == 1
 
 
@@ -98,3 +91,16 @@ def test_changing_the_customer_after_scoring_warns_that_the_result_is_out_of_dat
     assert not any("details changed" in w.value for w in app.warning)
     app.number_input(key="tenure").set_value(30).run()
     assert any("details changed" in w.value for w in app.warning)
+
+
+def test_the_shared_sidebar_starts_from_the_saved_assumptions():
+    at = AppTest.from_file(ENTRY, default_timeout=30).run()
+    assert not at.exception
+    assert [s.value for s in at.sidebar.slider] == [0.5, 0.2, 12]
+    assert at.sidebar.metric[0].value == "33.3%"                     # the derived break-even
+
+
+def test_moving_a_sidebar_slider_updates_the_break_even():
+    at = AppTest.from_file(ENTRY, default_timeout=30).run()
+    at.sidebar.slider[1].set_value(0.5).run()                          # discount 50%
+    assert at.sidebar.metric[0].value == "66.7%"

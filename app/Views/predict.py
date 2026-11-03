@@ -1,13 +1,12 @@
 """
-app/Home.py
+app/views/predict.py
 
-One-page predictor: describe a customer, see their chance of leaving, the risk band, whether a
-retention offer pays for itself under the assumptions in the sidebar, and why.
-Run locally:  streamlit run app/Home.py   (with the API running)
+One customer: describe them, see the chance of leaving, the risk band, whether an offer pays for itself
+under the assumptions in the sidebar, and why. The sidebar assumptions come from the entry point.
 """
 import plotly.graph_objects as go
 import streamlit as st
-from api_client import ApiError, explain, model_info, predict
+from api_client import ApiError, explain, predict
 
 from churn_core.economics import cutoff_from, ev_per_customer
 
@@ -16,42 +15,14 @@ PAYMENTS = ["Electronic check", "Mailed check", "Bank transfer (automatic)", "Cr
 ADD_ONS = [("online_security", "Online security"), ("online_backup", "Online backup"),
            ("device_protection", "Device protection"), ("tech_support", "Tech support"),
            ("streaming_tv", "Streaming TV"), ("streaming_movies", "Streaming movies")]
-RAISES, LOWERS = "#D85A30", "#1D9E75"
+RAISES, LOWERS = "#D14B52", "#2F9E67"
 
-st.set_page_config(page_title="Churn decision demo", page_icon="📞", layout="wide")
+r, d, months = st.session_state["r"], st.session_state["d"], st.session_state["months"]
 
-
-@st.cache_data(ttl=600, show_spinner=False)
-def load_model_info() -> dict:
-    return model_info()
-
-
-st.title("Who is worth a retention offer?")
+st.title("Predict one customer")
 st.caption("Describe a customer. The model estimates their chance of leaving, and the assumptions in the "
            "sidebar decide whether an offer pays for itself. The first request may take a few seconds "
            "while the service wakes up.")
-
-# ---------------- sidebar: business assumptions ----------------
-try:
-    with st.spinner("Contacting the prediction service..."):
-        info = load_model_info()
-except ApiError as exc:
-    st.error(str(exc))
-    st.stop()
-
-defaults = info["assumptions"]
-with st.sidebar:
-    st.header("Business assumptions")
-    st.caption("These are assumptions, not measured facts: the dataset has no record of offers or responses.")
-    r = st.slider("Offer success rate", 0.05, 1.0, float(defaults["r"]), 0.05,
-                  help="Share of contacted churners who accept the offer and stay.")
-    d = st.slider("Discount", 0.0, 0.5, float(defaults["d"]), 0.05,
-                  help="Discount on the monthly bill, given to everyone who is contacted.")
-    months = st.slider("Months a retained customer keeps paying", 1, 36, int(defaults["months"]))
-    cutoff = cutoff_from(r, d)
-    st.metric("Break-even probability", f"{cutoff:.1%}",
-              help="Above this chance of leaving, an offer earns more than it costs on average.")
-    st.caption(f"Model: {info['model_version']}")
 
 # ---------------- the customer ----------------
 st.subheader("The customer")
