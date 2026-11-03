@@ -1,6 +1,6 @@
 # Dashboard image: Streamlit only. NO model libraries (no LightGBM, scikit-learn or shap).
-# Only the pure economics module of churn_core is copied in, so an accidental import of
-# anything heavy fails right away. Build from the repo root:
+# Only the light, pure modules of churn_core (config, economics) and the small model_config.json are
+# copied in, so an accidental import of anything heavy fails right away. Build from the repo root:
 #   docker build -f docker/Dockerfile.dashboard -t churn-dashboard .
 FROM python:3.11-slim
 
@@ -14,7 +14,8 @@ WORKDIR /app
 COPY requirements-core.txt requirements-dashboard.txt ./
 RUN pip install -r requirements-dashboard.txt
 
-COPY churn_core/__init__.py churn_core/economics.py ./churn_core/
+COPY churn_core/__init__.py churn_core/config.py churn_core/economics.py ./churn_core/
+COPY models/model_config.json ./models/
 COPY .streamlit ./.streamlit
 COPY app ./app
 
@@ -23,4 +24,4 @@ USER appuser
 
 # Cloud Run sets PORT (8080); locally the default is also 8080
 EXPOSE 8080
-CMD ["sh", "-c", "streamlit run app/Home.py --server.port=${PORT:-8080} --server.address=0.0.0.0"]
+CMD ["sh", "-c", "streamlit run app/streamlit_app.py --server.port=${PORT:-8080} --server.address=0.0.0.0"]

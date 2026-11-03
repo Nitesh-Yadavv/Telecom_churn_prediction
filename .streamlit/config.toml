@@ -1,5 +1,50 @@
 [server]
 headless = true
+enableStaticServing = true          # serves app/static/, where the fonts live
 
 [browser]
 gatherUsageStats = false
+
+[client]
+toolbarMode = "viewer"              # hide developer options such as the Deploy button
+
+# One light theme (teal on warm off-white). Fonts are self-hosted in app/static/.
+[theme]
+base = "light"
+primaryColor = "#0B7F77"
+backgroundColor = "#F6F6F3"
+secondaryBackgroundColor = "#E6F3F0"
+textColor = "#0F2A36"
+linkColor = "#0B7F77"
+borderColor = "#DCE6E3"
+baseRadius = "0.75rem"
+font = "Inter, sans-serif"
+headingFont = "Source Serif 4, serif"
+
+[theme.sidebar]
+backgroundColor = "#FBFCFB"
+secondaryBackgroundColor = "#E6F3F0"
+
+[[theme.fontFaces]]
+family = "Source Serif 4"
+url = "app/static/SourceSerif4-SemiBold.woff2"
+weight = "600"
+style = "normal"
+
+[[theme.fontFaces]]
+family = "Inter"
+url = "app/static/Inter-Regular.woff2"
+weight = "400"
+style = "normal"
+
+[[theme.fontFaces]]
+family = "Inter"
+url = "app/static/Inter-Medium.woff2"
+weight = "500"
+style = "normal"
+
+[[theme.fontFaces]]
+family = "Inter"
+url = "app/static/Inter-SemiBold.woff2"
+weight = "600"
+style = "normal"
