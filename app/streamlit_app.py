@@ -1,19 +1,24 @@
 """
 app/streamlit_app.py
-
 The dashboard's entry point: the theme, the shared sidebar (business assumptions) and the top
 navigation. Every page reads the three assumptions from st.session_state ("r", "d", "months"), so a
 slider moved here changes all pages at once.
-
 Run locally:  streamlit run app/streamlit_app.py
 """
-import streamlit as st
-from theme import apply_theme
+import sys
+from pathlib import Path
 
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+import streamlit as st
+
+from app.theme import apply_theme
 from churn_core import config
 from churn_core.economics import cutoff_from
 
-st.set_page_config(page_title="Churn decisions", page_icon="📞", layout="wide")
+st.set_page_config(page_title="Churn decisions", page_icon=PROJECT_ROOT/"docs"/"churn_decisions_favicon.ico", layout="wide")
 apply_theme()
 
 defaults = config.default_assumptions()
