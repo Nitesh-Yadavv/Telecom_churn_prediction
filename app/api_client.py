@@ -68,3 +68,90 @@ def predict(customer: dict, assumptions: dict) -> dict:
 
 def explain(customer: dict) -> dict:
     return _call("POST", "/explain", json={"customer": customer})
+
+
+def upload_template() -> str:
+    """Fetch the CSV template from /upload-template."""
+    if not API_KEY:
+        raise ApiError("The dashboard has no API key configured (server setup problem).")
+    last_error = None
+    for attempt in range(ATTEMPTS):
+        try:
+            response = requests.get(
+                f"{API_URL}/upload-template",
+                headers={"X-API-Key": API_KEY},
+                timeout=TIMEOUT,
+            )
+            break
+        except requests.exceptions.RequestException as exc:
+            last_error = exc
+            logger.warning("API call failed: GET %s/upload-template -> %r", API_URL, exc)
+            if attempt + 1 < ATTEMPTS:
+                time.sleep(2)
+    else:
+        raise ApiError(
+            "Could not reach the prediction service. It may be waking up, so please try again in a few seconds."
+        ) from last_error
+
+    if response.status_code == 401:
+        raise ApiError("The prediction service rejected the dashboard's API key (server setup problem).")
+    if not response.ok:
+        raise ApiError(f"The prediction service returned an error (HTTP {response.status_code}).")
+    return response.text
+
+
+def predict_batch(
+    data: bytes,
+    filename: str,
+    r: float | None = None,
+    d: float | None = None,
+    months: float | None = None,
+    reasons: bool = False,
+) -> dict:
+    """Send a CSV file to /predict_batch, returning response dict for both 200 and 422."""
+    if not API_KEY:
+        raise ApiError("The dashboard has no API key configured (server setup problem).")
+    params: dict[str, str | int | float | bool] = {"reasons": reasons}
+    if r is not None:
+        params["r"] = float(r)
+    if d is not None:
+        params["d"] = float(d)
+    if months is not None:
+        params["months"] = int(months)
+
+    last_error = None
+    for attempt in range(ATTEMPTS):
+        try:
+            response = requests.post(
+                f"{API_URL}/predict_batch",
+                headers={"X-API-Key": API_KEY},
+                params=params,
+                files={"file": (filename, data, "text/csv")},
+                timeout=TIMEOUT,
+            )
+            break
+        except requests.exceptions.RequestException as exc:
+            last_error = exc
+            logger.warning("API call failed: POST %s/predict_batch -> %r", API_URL, exc)
+            if attempt + 1 < ATTEMPTS:
+                time.sleep(2)
+    else:
+        raise ApiError(
+            "Could not reach the prediction service. It may be waking up, so please try again in a few seconds."
+        ) from last_error
+
+    if response.status_code == 401:
+        raise ApiError("The prediction service rejected the dashboard's API key (server setup problem).")
+    if response.status_code == 413:
+        raise ApiError("The uploaded file exceeds the API limit (max 2 MB or 5,000 rows).")
+
+    # 200 and 422 both return the batch response JSON
+    if response.status_code in (200, 422):
+        try:
+            return response.json()
+        except Exception as exc:
+            raise ApiError("Invalid response from batch scoring service.") from exc
+
+    if not response.ok:
+        raise ApiError(f"The prediction service returned an error (HTTP {response.status_code}).")
+    return response.json()
