@@ -125,39 +125,63 @@ def compute_explorer_summary(ranked_df: pd.DataFrame) -> dict[str, Any]:
     }
 
 
+
 def format_batch_results(batch_resp: dict[str, Any]) -> dict[str, Any]:
-    """Parse and structure the response from /predict_batch for presentation."""
-    n_scored = int(batch_resp.get("n_scored", 0))
-    n_errors = int(batch_resp.get("n_errors", 0))
-    n_warnings = int(batch_resp.get("n_warnings", 0))
+    """Parse both legacy and current /predict_batch response formats."""
+    summary = batch_resp.get("summary", {})
+
+    n_scored = int(
+        batch_resp.get("n_scored", summary.get("rows_valid", summary.get("rows", 0)))
+    )
+    n_errors = int(
+        batch_resp.get("n_errors", summary.get("rows_with_errors", 0))
+    )
+    n_warnings = int(
+        batch_resp.get("n_warnings", summary.get("rows_with_warnings", 0))
+    )
 
     # Parse issues
     raw_issues = batch_resp.get("issues", [])
     issues_df = pd.DataFrame(raw_issues)
-    if not issues_df.empty:
-        # Sort errors before warnings
-        level_order = {"error": 0, "warning": 1}
-        issues_df["_sort"] = issues_df["level"].map(lambda x: level_order.get(str(x).lower(), 2))
-        issues_df = issues_df.sort_values(["_sort", "row"]).drop(columns=["_sort"]).reset_index(drop=True)
 
-    # Parse scored rows
-    raw_scored = batch_resp.get("scored", [])
+    if not issues_df.empty:
+        level_order = {"error": 0, "warning": 1}
+        issues_df["_sort"] = issues_df["level"].map(
+            lambda x: level_order.get(str(x).lower(), 2)
+        )
+        issues_df = (
+            issues_df.sort_values(["_sort", "row"])
+            .drop(columns=["_sort"])
+            .reset_index(drop=True)
+        )
+
+    # Support both legacy "scored" and current "results" keys
+    raw_scored = batch_resp.get("scored", batch_resp.get("results", []))
     scored_df = pd.DataFrame(raw_scored)
 
     n_contact = 0
     total_gain = 0.0
-    band_counts: dict[str, int] = {"Low": 0, "Medium": 0, "High": 0, "Very high": 0}
+    band_counts: dict[str, int] = {
+        "Low": 0,
+        "Medium": 0,
+        "High": 0,
+        "Very high": 0,
+    }
 
     if not scored_df.empty:
         if "flag" in scored_df.columns:
-            contact_mask = scored_df["flag"].astype(bool)
+            contact_mask = scored_df["flag"].fillna(False).astype(bool)
             n_contact = int(contact_mask.sum())
+
             if "expected_gain" in scored_df.columns:
-                total_gain = float(scored_df.loc[contact_mask, "expected_gain"].sum())
+                total_gain = float(
+                    scored_df.loc[contact_mask, "expected_gain"].sum()
+                )
+
         if "band" in scored_df.columns:
             counts = scored_df["band"].value_counts().to_dict()
-            for b in band_counts:
-                band_counts[b] = int(counts.get(b, 0))
+            for band in band_counts:
+                band_counts[band] = int(counts.get(band, 0))
 
     return {
         "n_scored": n_scored,
@@ -168,5 +192,10 @@ def format_batch_results(batch_resp: dict[str, Any]) -> dict[str, Any]:
         "issues_df": issues_df,
         "scored_df": scored_df,
         "band_counts": band_counts,
-        "issues_truncated": bool(batch_resp.get("issues_truncated", False)),
+        "issues_truncated": bool(
+            batch_resp.get(
+                "issues_truncated",
+                summary.get("issues_truncated", False),
+            )
+        ),
     }

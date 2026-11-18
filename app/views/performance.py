@@ -62,20 +62,50 @@ band_df = load_band_table()
 seg_df = load_segment_metrics()
 shap_df = load_shap_importance()
 
+
 # ----------------- 1. Top KPI Row -----------------
 kpis = get_performance_kpis(metrics)
-c1, c2, c3, c4, c5 = st.columns(5)
+
+# First row: three KPIs
+c1, c2, c3 = st.columns(3)
 
 with c1:
-    kpi(label="AUC-PR", value=kpis["auc_pr"]["display"], caption=str(kpis["auc_pr"]["caption"]))
+    kpi(
+        label="AUC-PR",
+        value=kpis["auc_pr"]["display"],
+        caption=str(kpis["auc_pr"]["caption"]),
+    )
+
 with c2:
-    kpi(label="ROC-AUC", value=kpis["roc_auc"]["display"], caption=str(kpis["roc_auc"]["caption"]))
+    kpi(
+        label="ROC-AUC",
+        value=kpis["roc_auc"]["display"],
+        caption=str(kpis["roc_auc"]["caption"]),
+    )
+
 with c3:
-    kpi(label="Brier score", value=kpis["brier"]["display"], caption=str(kpis["brier"]["caption"]))
+    kpi(
+        label="Brier score",
+        value=kpis["brier"]["display"],
+        caption=str(kpis["brier"]["caption"]),
+    )
+
+# Second row: two wider KPIs
+c4, c5 = st.columns(2)
+
 with c4:
-    kpi(label="Recall / Precision", value=kpis["recall_precision"]["display"], caption=str(kpis["recall_precision"]["caption"]))
+    kpi(
+        label="Recall / Precision",
+        value=kpis["recall_precision"]["display"],
+        caption=str(kpis["recall_precision"]["caption"]),
+    )
+
 with c5:
-    kpi(label="Flagged", value=kpis["flagged"]["display"], caption=str(kpis["flagged"]["caption"]))
+    kpi(
+        label="Flagged",
+        value=kpis["flagged"]["display"],
+        caption=str(kpis["flagged"]["caption"]),
+    )
 
 st.caption("All figures on the 1,409 held-out customers.")
 st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)

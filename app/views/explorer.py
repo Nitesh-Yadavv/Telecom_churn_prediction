@@ -218,6 +218,7 @@ with tab_upload:
                             months=months,
                             reasons=include_reasons,
                         )
+                        
                         results = format_batch_results(resp)
 
                         # Check if any row was scored
