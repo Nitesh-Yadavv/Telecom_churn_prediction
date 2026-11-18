@@ -42,6 +42,8 @@ def counts(conn):
             for t in ["customers", "services", "billing", "churn_status", "scores"]}
 
 
+
+
 def test_fresh_schema_load_and_a_second_run_changes_nothing(engine, loader_parts):
     frames = prepare(*loader_parts)
     with engine.begin() as conn:
